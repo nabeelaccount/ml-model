@@ -65,7 +65,7 @@ jobs:
     - name: Download model artifact
       uses: actions/download-artifact@v2
       with:
-        name: model
+        name: model.joblib
     
     - name: Deploy model to S3
       run: |
