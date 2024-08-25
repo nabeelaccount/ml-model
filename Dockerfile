@@ -14,9 +14,3 @@ COPY . .
 # Run applicaiton
 CMD ["python", "train.py"]
 
-
-# # Set PYTHONPATH
-# ENV PYTHONPATH=/app
-
-# # Run Pytest
-# RUN pytest
