@@ -11,11 +11,12 @@ RUN pip install -r requirements.txt
 # Copy the current directory contents into the container at /app
 COPY . .
 
+# Run applicaiton
+CMD ["python", "train.py"]
+
+
+# # Set PYTHONPATH
+# ENV PYTHONPATH=/app
+
 # # Run Pytest
-# RUN PYTHONPATH=. pytest
-
-# Set PYTHONPATH
-ENV PYTHONPATH=/app
-
-# Run Pytest
-RUN pytest
+# RUN pytest
