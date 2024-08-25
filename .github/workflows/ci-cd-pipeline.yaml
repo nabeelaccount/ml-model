@@ -10,8 +10,8 @@ on:
 
 env:
   AWS_REGION: us-east-1
-  BUCKET_NAME: nabeel-cicd-mi-model
-  ECR_REPOSITORY: nabeel-cicd-mi-model
+  BUCKET_NAME: nabeel-cicd-mi-model2
+  ECR_REPOSITORY: nabeel-cicd-mi-model2
 
 jobs:
   build:
