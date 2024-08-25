@@ -115,7 +115,13 @@ jobs:
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v2
 
+    - name: Check if SageMaker model already exists
+      id: check-model-exists
+      run: |
+        aws sagemaker describe-model --model-name ${{ env.SAGEMAKER_MODEL }} || echo "Model does not exist"
+
     - name: Deploy to SageMaker
+      if: id.check-model-exists.status != "0"
       run: |
         aws sagemaker create-model \
           --model-name ${{ env.SAGEMAKER_MODEL }} \
