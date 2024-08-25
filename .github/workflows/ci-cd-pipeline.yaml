@@ -118,10 +118,10 @@ jobs:
     - name: Check if SageMaker model already exists
       id: check-model-exists
       run: |
-        aws sagemaker describe-model --model-name ${{ env.SAGEMAKER_MODEL }} || echo "Model does not exist"
+        if aws sagemaker describe-model --model-name ${{ env.SAGEMAKER_MODEL }}; then echo "Model exists"; else echo "Model does not exist"; exit 1; fi
 
     - name: Deploy to SageMaker
-      if: steps.check-model-exists.output.status != "0"
+      if: failure() # only run if check-model-exists fails i.e. model does not exist
       run: |
         aws sagemaker create-model \
           --model-name ${{ env.SAGEMAKER_MODEL }} \
