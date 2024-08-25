@@ -128,6 +128,7 @@ jobs:
           --endpoint-config-name nabeel-sagemaker-endpoint-config \
           --production-variants VariantName=AllTraffic,ModelName=${{ env.SAGEMAKER_MODEL }},InitialInstanceCount=1,InstanceType=ml.m5.large
 
+      # Failed to extract model data archive from URL "s3://nabeel-cicd-mi-model2/model/model.joblib". Please ensure that the object located at the URL is a valid tar.gz archive.
     - name: Deploy Endpoint
       run: |
         aws sagemaker create-endpoint \
