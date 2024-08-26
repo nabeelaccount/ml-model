@@ -15,13 +15,62 @@ env:
   SAGEMAKER_MODEL: nabeel-cicd-mi-model2
 
 jobs:
-  build:
+
+  deploy_infra:
+    name: Deploy Infrastructure
     runs-on: ubuntu-latest
     defaults:
       run:
         shell: bash
+        working-directory: ./infra
+    steps:
+      - name: Git checkout
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials from AWS account
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Setup (install) Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.8.5
+
+      - name: Terraform fmt
+        id: fmt
+        run: terraform fmt -check
+        continue-on-error: true
+
+      - name: Terraform Init
+        id: init
+        run: terraform init 
+
+      - name: Terraform Validate
+        id: validate
+        run: terraform validate -no-color
+
+      - name: Terraform Plan
+        id: plan
+        run: terraform plan -no-color
+        if: github.event_name == 'pull_request'
+        continue-on-error: true
+
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: terraform apply -auto-approve -input=false
+
+
+
+  build:
+    runs-on: ubuntu-latest
+    needs: deploy_infra
+    defaults:
+      run:
+        shell: bash
         working-directory: ./app
-    needs: [deploy_infra]
 
     steps:
     - name: Checkout code
@@ -130,13 +179,8 @@ jobs:
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v2
 
-    # - name: Check if SageMaker model already exists
-    #   id: check-model-exists
-    #   run: |
-    #     if aws sagemaker describe-model --model-name ${{ env.SAGEMAKER_MODEL }}; then echo "Model exists"; else echo "Model does not exist"; exit 1; fi
 
     - name: Deploy to SageMaker
-      # if: failure() # only run if check-model-exists fails i.e. model does not exist
       run: |
         aws sagemaker create-model \
           --model-name ${{ env.SAGEMAKER_MODEL }} \
