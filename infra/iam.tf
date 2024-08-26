@@ -19,7 +19,7 @@ data "aws_iam_policy_document" "lambda_trust_policy" {
 #################################################################################################
 resource "aws_iam_role" "lambda_role" {
   name                = "ml_lambda_role"
-  assume_role_policy  = data.aws_iam_policy_document.lambda_trust_policy
+  assume_role_policy  = data.aws_iam_policy_document.lambda_trust_policy.json
 }
 
 #################################################################################################
