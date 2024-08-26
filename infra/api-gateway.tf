@@ -2,7 +2,7 @@
 # Create the API Gateway
 #################################################################################################
 resource "aws_api_gateway_rest_api" "api_gateway" {
-  name  = var.name
+  name        = var.name
   description = "${var.name} API Gateway"
 
   endpoint_configuration {
@@ -16,7 +16,7 @@ resource "aws_api_gateway_rest_api" "api_gateway" {
 #################################################################################################
 resource "aws_api_gateway_resource" "api_gateway_resource" {
   rest_api_id = aws_api_gateway_rest_api.api_gateway.id
-  parent_id = aws_api_gateway_rest_api.api_gateway.root_resource_id
+  parent_id   = aws_api_gateway_rest_api.api_gateway.root_resource_id
 
   # path <gateway-rul>/endpoint
   path_part = var.endpoint_path
@@ -27,9 +27,9 @@ resource "aws_api_gateway_resource" "api_gateway_resource" {
 # Add API gateway POST Request Method
 #################################################################################################
 resource "aws_api_gateway_method" "api_gateway_method" {
-  rest_api_id = aws_api_gateway_rest_api.api_gateway.id
-  resource_id = aws_api_gateway_resource.api_gateway_resource.id
-  http_method = "POST"
+  rest_api_id   = aws_api_gateway_rest_api.api_gateway.id
+  resource_id   = aws_api_gateway_resource.api_gateway_resource.id
+  http_method   = "POST"
   authorization = "NONE"
 }
 
@@ -37,14 +37,14 @@ resource "aws_api_gateway_method" "api_gateway_method" {
 # Integrating API Gateway with Lambda function
 #################################################################################################
 resource "aws_api_gateway_integration" "gateway_method" {
-  rest_api_id = aws_api_gateway_rest_api.api_gateway.id
-  resource_id = aws_api_gateway_resource.api_gateway_resource.id
-  http_method = aws_api_gateway_method.api_gateway_method.http_method
+  rest_api_id             = aws_api_gateway_rest_api.api_gateway.id
+  resource_id             = aws_api_gateway_resource.api_gateway_resource.id
+  http_method             = aws_api_gateway_method.api_gateway_method.http_method
   integration_http_method = "POST"
 
   # Informs lambda that the API requests is from AWS services
   type = "AWS_PROXY"
-  uri = aws_lambda_function.prediction_lambda.invoke_arn
+  uri  = aws_lambda_function.prediction_lambda.invoke_arn
 }
 
 
@@ -55,10 +55,10 @@ data "aws_caller_identity" "account_info" {}
 data "aws_region" "current" {}
 
 resource "aws_lambda_permission" "lambda_permissions" {
-  statement_id = "AllowExecutionFromAPIGateway"
-  action =  "lambda:InvokeFunction"
+  statement_id  = "AllowExecutionFromAPIGateway"
+  action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.prediction_lambda.function_name
-  principal = "apigateway.amazonaws.com"
+  principal     = "apigateway.amazonaws.com"
   # arn:aws:execute-api:region:account-id:api-id/stage/method/resource-path
   source_arn = "arn:aws:execute-api:${data.aws_region.current.id}:${data.aws_caller_identity.account_info.account_id}:${aws_api_gateway_rest_api.api_gateway.id}/${var.stage_name}/${aws_api_gateway_method.api_gateway_method.http_method}/${var.endpoint_path}"
 }
@@ -73,14 +73,14 @@ resource "aws_api_gateway_deployment" "deploy_api_gatway" {
     create_before_destroy = true
   }
 
-  depends_on = [ 
+  depends_on = [
     aws_api_gateway_integration.gateway_method,
-    aws_api_gateway_method.api_gateway_method 
+    aws_api_gateway_method.api_gateway_method
   ]
 }
 
 resource "aws_api_gateway_stage" "api_gateway_staging" {
   deployment_id = aws_api_gateway_deployment.deploy_api_gatway.id
-  rest_api_id = aws_api_gateway_rest_api.api_gateway.id
-  stage_name = "development"
+  rest_api_id   = aws_api_gateway_rest_api.api_gateway.id
+  stage_name    = var.stage_name
 }

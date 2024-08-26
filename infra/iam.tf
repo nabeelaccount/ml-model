@@ -6,7 +6,7 @@ data "aws_iam_policy_document" "lambda_trust_policy" {
     effect = "Allow"
 
     principals {
-      type = "Service"
+      type        = "Service"
       identifiers = ["lambda.amazonaws.com"]
     }
 
@@ -18,8 +18,8 @@ data "aws_iam_policy_document" "lambda_trust_policy" {
 # Create Lambda Role
 #################################################################################################
 resource "aws_iam_role" "lambda_role" {
-  name                = "ml_lambda_role"
-  assume_role_policy  = data.aws_iam_policy_document.lambda_trust_policy.json
+  name               = "ml_lambda_role"
+  assume_role_policy = data.aws_iam_policy_document.lambda_trust_policy.json
 }
 
 #################################################################################################
@@ -29,7 +29,7 @@ resource "aws_iam_policy" "lambda_permission_policy" {
   name        = "aws_iam_policy_for_aws_lambda_role"
   path        = "/"
   description = "AWS IAM Policy for managing lambda role"
-  policy = <<EOF
+  policy      = <<EOF
   {
     "Version": "2012-10-17",
     "Statement": [
@@ -59,6 +59,6 @@ resource "aws_iam_policy" "lambda_permission_policy" {
 # Attach lambda permissions to role
 #################################################################################################
 resource "aws_iam_role_policy_attachment" "attach_lambda_policy_to_role" {
-  role = aws_iam_role.lambda_role.name
+  role       = aws_iam_role.lambda_role.name
   policy_arn = aws_iam_policy.lambda_permission_policy.arn
 }
