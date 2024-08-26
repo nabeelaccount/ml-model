@@ -139,7 +139,6 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: model.joblib.tar.gz
-        path: ./
     
   deploy_to_s3:
     runs-on: ubuntu-latest
