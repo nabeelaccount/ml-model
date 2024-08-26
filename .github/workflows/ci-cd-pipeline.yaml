@@ -9,7 +9,7 @@ env:
   AWS_REGION: us-east-1
   BUCKET_NAME: nabeel-cicd-mi-model2
   STATE_BUCKET_NAME: ml-state-bucket
-  AWS_BUCKET_KEY_NAME: tf.state
+  AWS_BUCKET_KEY_NAME: infra.tfstate
   ECR_REPOSITORY: nabeel-cicd-mi-model2
   SAGEMAKER_MODEL: nabeel-cicd-mi-model2
 
