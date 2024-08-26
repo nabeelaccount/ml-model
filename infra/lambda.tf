@@ -13,7 +13,7 @@ resource "aws_lambda_function" "prediction_lambda" {
   role = aws_iam_role.lambda_role.arn
 
   # app name + function name
-  handler = main.lambda_handler
+  handler ="main.lambda_handler"
 
   # used to trigger udpdate
   source_code_hash = data.archive_file.lambda.output_base64sha256
