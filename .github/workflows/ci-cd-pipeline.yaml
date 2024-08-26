@@ -46,11 +46,21 @@ jobs:
     - name: Train model
       run: |
         python train.py
+    
+    - name: Package model and compress
+      run: |
+        tar -czfv model.joblib.tar.gz model.joblib
 
     - name: Deploy model
       run: |
         echo "Deploying model..."
-        if [ -f "model.joblib" ]; then echo "Model deployed successfully"; else echo "Model deployment failed"; exit 1; fi
+        if [ -f model.joblib.tar.gz" ]
+        then 
+          echo "Model packaged successfully"
+        else 
+          echo "Model package failed"
+          exit 1 
+        fi
 
     - name: Login to Amazon ECR
       id: login-ecr
@@ -63,14 +73,14 @@ jobs:
         ECR_REPOSITORY: ${{ env.ECR_REPOSITORY }}
         IMAGE_TAG: latest
       run: |
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
     - name: Upload model artifact
       uses: actions/upload-artifact@v2
       with:
-        name: model.joblib
-        path: model.joblib
+        name: model.joblib.tar.gz
+        path: model.joblib.tar.gz
     
   deploy_to_s3:
     runs-on: ubuntu-latest
@@ -80,7 +90,7 @@ jobs:
     - name: Download model artifact
       uses: actions/download-artifact@v2
       with:
-        name: model.joblib
+        name: model.joblib.tar.gz
         path: ./
 
     - name: Configure AWS credentials
@@ -97,7 +107,7 @@ jobs:
     
     - name: Deploy model to S3
       run: |
-        aws s3 cp model.joblib s3://${{ env.BUCKET_NAME }}/model/model.joblib
+        aws s3 cp model.joblib.tar.gz s3://${{ env.BUCKET_NAME }}/model/model.tar.gz
 
   deploy_to_sagemaker:
     runs-on: ubuntu-latest
