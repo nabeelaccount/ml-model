@@ -150,7 +150,6 @@ jobs:
       uses: actions/download-artifact@v2
       with:
         name: model.joblib.tar.gz
-        path: ./
     
     - name: List files after calling artifact
       run: ls -l
