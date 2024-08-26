@@ -172,39 +172,39 @@ jobs:
       run: |
         aws s3 cp app/model.joblib.tar.gz s3://${{ env.BUCKET_NAME }}/model/model.tar.gz
 
-  # deploy_to_sagemaker:
-  #   runs-on: ubuntu-latest
-  #   needs: deploy_to_s3
+  deploy_to_sagemaker:
+    runs-on: ubuntu-latest
+    needs: deploy_to_s3
 
-  #   steps:
-  #   - name: Configure AWS credentials
-  #     uses: aws-actions/configure-aws-credentials@v1
-  #     with:
-  #       aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-  #       aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  #       aws-region: ${{ env.AWS_REGION }}
+    steps:
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
         
-  #   - name: Login to Amazon ECR
-  #     id: login-ecr
-  #     uses: aws-actions/amazon-ecr-login@v2
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v2
 
 
-  #   - name: Deploy to SageMaker
-  #     run: |
-  #       aws sagemaker create-model \
-  #         --model-name ${{ env.SAGEMAKER_MODEL }} \
-  #         --primary-container Image=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest,ModelDataUrl=s3://${{ env.BUCKET_NAME }}/model/model.joblib.tar.gz \
-  #         --execution-role-arn arn:aws:iam::058264202072:role/SageMakerRole
+    - name: Deploy to SageMaker
+      run: |
+        aws sagemaker create-model \
+          --model-name ${{ env.SAGEMAKER_MODEL }} \
+          --primary-container Image=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest,ModelDataUrl=s3://${{ env.BUCKET_NAME }}/model/model.joblib.tar.gz \
+          --execution-role-arn arn:aws:iam::058264202072:role/SageMakerRole
 
-  #   - name: Create Endpoint Configuration
-  #     run: |
-  #       aws sagemaker create-endpoint-config \
-  #         --endpoint-config-name nabeel-sagemaker-endpoint-config \
-  #         --production-variants VariantName=AllTraffic,ModelName=${{ env.SAGEMAKER_MODEL }},InitialInstanceCount=1,InstanceType=ml.m5.large
+    - name: Create Endpoint Configuration
+      run: |
+        aws sagemaker create-endpoint-config \
+          --endpoint-config-name nabeel-sagemaker-endpoint-config \
+          --production-variants VariantName=AllTraffic,ModelName=${{ env.SAGEMAKER_MODEL }},InitialInstanceCount=1,InstanceType=ml.m5.large
 
-  #     # Failed to extract model data archive from URL "s3://nabeel-cicd-mi-model2/model/model.joblib". Please ensure that the object located at the URL is a valid tar.gz archive.
-  #   - name: Deploy Endpoint
-  #     run: |
-  #       aws sagemaker create-endpoint \
-  #         --endpoint-name nabeel-sagemaker-endpoint \
-  #         --endpoint-config-name nabeel-sagemaker-endpoint-config
+      # Failed to extract model data archive from URL "s3://nabeel-cicd-mi-model2/model/model.joblib". Please ensure that the object located at the URL is a valid tar.gz archive.
+    - name: Deploy Endpoint
+      run: |
+        aws sagemaker create-endpoint \
+          --endpoint-name nabeel-sagemaker-endpoint \
+          --endpoint-config-name nabeel-sagemaker-endpoint-config
