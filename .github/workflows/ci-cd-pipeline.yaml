@@ -170,7 +170,7 @@ jobs:
     
     - name: Deploy model to S3
       run: |
-        aws s3 cp ./model.joblib.tar.gz s3://${{ env.BUCKET_NAME }}/model/model.tar.gz
+        aws s3 cp app/model.joblib.tar.gz s3://${{ env.BUCKET_NAME }}/model/model.tar.gz
 
   # deploy_to_sagemaker:
   #   runs-on: ubuntu-latest
