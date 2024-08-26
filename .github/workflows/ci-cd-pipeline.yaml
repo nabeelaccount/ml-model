@@ -17,10 +17,15 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: ./app
+    needs: [deploy_infra]
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
   
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
@@ -30,7 +35,7 @@ jobs:
         aws-region: ${{ env.AWS_REGION }}
 
     - name: Set up Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v5
       with:
         python-version: '3.8'
 
@@ -135,7 +140,7 @@ jobs:
       run: |
         aws sagemaker create-model \
           --model-name ${{ env.SAGEMAKER_MODEL }} \
-          --primary-container Image=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest,ModelDataUrl=s3://${{ env.BUCKET_NAME }}/model/model.joblib \
+          --primary-container Image=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest,ModelDataUrl=s3://${{ env.BUCKET_NAME }}/model/model.joblib.tar.gz \
           --execution-role-arn arn:aws:iam::058264202072:role/SageMakerRole
 
     - name: Create Endpoint Configuration

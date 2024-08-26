@@ -9,3 +9,4 @@ Productionise stagemaker: https://aws.amazon.com/blogs/machine-learning/build-a-
 
 Sagemaker inferencing: https://www.datacamp.com/tutorial/aws-sagemaker-tutorial
 Machine learning inference: https://www.datacamp.com/blog/what-is-machine-learning-inference
+Flask fir Sagemaker inference: https://towardsdatascience.com/deploy-a-machine-learning-model-using-flask-da580f84e60c
