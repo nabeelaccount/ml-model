@@ -139,6 +139,7 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: model.joblib.tar.gz
+        path: ./app/model.joblib.tar.gz
     
   deploy_to_s3:
     runs-on: ubuntu-latest
@@ -149,6 +150,7 @@ jobs:
       uses: actions/download-artifact@v2
       with:
         name: model.joblib.tar.gz
+        path: ./app/model.joblib.tar.gz
     
     - name: List files after calling artifact
       run: ls -l
