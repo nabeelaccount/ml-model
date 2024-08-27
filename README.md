@@ -58,7 +58,7 @@ API Call -------> API Gateway -------> API Lambda (load model) -------> S3 bucke
                  cloudwatch        result [y/n]     |
                  monitoring &                       v
                  logging                        cloudwatch
-                                          monitoring & logging
+                                            monitoring & logging
 ```
 
 Alternative method
@@ -126,7 +126,9 @@ For more information: https://aws.amazon.com/blogs/machine-learning/build-a-ci-c
 
 Scaling:
 - AWS Lambda, API Gateway and S3 all scale automatically as this is handled by AWS
-- Structured data can use RDS, DynamoDB, DataLake, Datawarehouse
+- Structured data can use RDS, DynamoDB, Datawarehouse (large amount of data (extracted transformed loaded) designed for analytis/query)
+- Unstructured/semi-structured data: DataLake (data from all sources and type dumped to be organised. Once organised stored in database or datawarehouse)
+- loadtesting - AWS distributed load testing
 
 Security:
 - Least priveledge. All services requring only the necessary permissions.
