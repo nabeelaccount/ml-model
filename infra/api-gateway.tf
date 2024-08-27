@@ -60,7 +60,7 @@ resource "aws_lambda_permission" "lambda_permissions" {
   function_name = aws_lambda_function.prediction_lambda.function_name
   principal     = "apigateway.amazonaws.com"
   # arn:aws:execute-api:region:account-id:api-id/stage/method/resource-path
-  source_arn = "arn:aws:execute-api:${data.aws_region.current.id}:${data.aws_caller_identity.account_info.account_id}:${aws_api_gateway_rest_api.api_gateway.id}/${var.stage_name}/${aws_api_gateway_method.api_gateway_method.http_method}/${var.endpoint_path}"
+  source_arn = "arn:aws:execute-api:${data.aws_region.current.id}:${data.aws_caller_identity.account_info.account_id}:${aws_api_gateway_rest_api.api_gateway.id}/*/${aws_api_gateway_method.api_gateway_method.http_method}/${var.endpoint_path}"
 }
 
 #################################################################################################
@@ -84,3 +84,4 @@ resource "aws_api_gateway_stage" "api_gateway_staging" {
   rest_api_id   = aws_api_gateway_rest_api.api_gateway.id
   stage_name    = var.stage_name
 }
+

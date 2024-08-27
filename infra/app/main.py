@@ -4,16 +4,16 @@ import joblib
 import tarfile
 import os
 
-# S3 client
+# initialise S3
 s3 = boto3.client('s3')
 
-# Load model from S3 and return it
+# Load model from S3
 def load_model():
-    # Specify your S3 bucket and model file
+    # specify bucket name and model file
     bucket_name = 'nabeel-cicd-mi-model2'
     model_key = 'model/model.joblib.tar.gz'
 
-    # Download the model file from S3
+    # Download the model file from S3 and save it in /tmp
     s3.download_file(bucket_name, model_key, '/tmp/model.joblib.tar.gz')
 
     
@@ -22,23 +22,23 @@ def load_model():
     with tarfile.open('/tmp/model.joblib.tar.gz') as file:
         file.extract('model.joblib', path='/tmp')
 
-    # Load the model
+    # Load the saved model
     model = joblib.load('/tmp/model.joblib')
     return model
 
+# https://medium.com/analytics-vidhya/deploy-machine-learning-models-on-aws-lambda-5969b11616bf
 
-# Lambda handler function
-def lambda_handler(event, context):
-    # Load the model
-    model = load_model()
+# Object must be extracted and processed
 
-    # Extract features from the request body
-    body = json.loads(event['body'])
-    features = body['features']
+# def predict(event):
+#     sample = event['body']
+#     model = load_model()
+#     result = model.predict(sample)
+#     return result
 
-    # Make a prediction
-    prediction = model.predict([features])
+# # Lambda handler function
+# def lambda_handler(event, context):
+#     result = predict(event)
+#     return {'StatusCode':200,
+#     'body':result[0]}
 
-    # Return the prediction as JSON
-    return {'statusCode': 200, 'body': json.dumps({'prediction': prediction.tolist()})
-    }
