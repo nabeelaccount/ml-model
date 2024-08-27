@@ -4,7 +4,7 @@
 ##  Building through GitHub action
 The project is broken down into two segements.
 
-1. Building the Iris flower training application
+### 1. Building the Iris flower training application
 
 The code loads a dataset of iris flowers, trains a Random Forest model, already created, and then uses that data to classify the species of the flowers based on their measurements. The trained model is then saved to a file 'model.joblib' for future use.
 
@@ -44,7 +44,7 @@ Further reading and reference:
 - https://scikit-learn.org/stable/auto_examples/datasets/plot_iris_dataset.html
 - https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html
 
-2. Building the supporting infrastructure for inferencing
+### 2. Building the supporting infrastructure for inferencing
 
 Machine learning inferencing is the ability to make use of the trained model. In our example, using Lambda, we aim to extract the trained model to predict whether a plant is an Iris Flower based in the flowers dimensions - petals.
 
@@ -52,10 +52,13 @@ The current method
 ```markdown
 
 API Call -------> API Gateway -------> API Lambda (load model) -------> S3 bucket (stored module)
-                                        |
-                                        |
-                                        v
-                                 result [y/n]
+                     |                  |           |
+                     |                  |           |
+                     v                  v           |
+                 cloudwatch        result [y/n]     |
+                 monitoring &                       v
+                 logging                        cloudwatch
+                                          monitoring & logging
 ```
 
 Alternative method
@@ -80,17 +83,9 @@ references:
 Alternative using native AWS CICD pipeline
 ```markdown
 
-Developer Push code -------> CodeCommit -------> CodePipeline -------> CodeBuild -------> Store Image (ECR) -------> Sage Maker
-                                                                          |
-                                                                          |
-                                                                          |
-                                                                          v
-                                                                    Store model (S3)
+Developer Push code -------> CodeCommit -------> CodePipeline -------> CodeBuild -------> Store Image (ECR) -------> Sage Maker -------> Store model (S3)
+                                                                         
 ```
-
-
-A more complete scanerio can be found in the following example:
-![ML Pipeline](images/prod-ml-pipeline.png)
 
 - Developer push code: Develoer pushes code to CodeCommit
 - CodeCommit: CodeCommit repository, alternative to GitHub repository
@@ -99,6 +94,31 @@ A more complete scanerio can be found in the following example:
 - -  S3 Bucket: Store the trained model in AWS S3
 - - Stores application image in ECR
 - Builds SageMaker model, and endpoint
+
+
+A more complete scanerio can be found in the following example:
+
+![ML Pipeline](images/prod-ml-pipeline.png)
+
+The workflow includes the following steps:
+
+1. The data scientist works on developing custom ML model code using their local notebook or a SageMaker notebook. They commit and push changes to a source code repository.
+2. A webhook on the code repository triggers a CodePipeline build in the AWS Cloud.
+3. CodePipeline downloads the source code and starts the build process.
+4. CodeBuild downloads the necessary source files and starts running commands to build and tag a local Docker container image.
+5. CodeBuild pushes the container image to Amazon ECR. The container image is tagged with a unique label derived from the repository commit hash.
+6. CodePipeline invokes Step Functions and passes the container image URI and the unique container image tag as parameters to Step Functions.
+7. Step Functions starts a workflow by initially calling the SageMaker training job and passing the necessary parameters.
+8. SageMaker downloads the necessary container image and starts the training job. When the job is complete, Step Functions directs SageMaker to create a model and store the model in the S3 bucket.
+9. Step Functions starts a SageMaker batch transform job on the test data provided in the S3 bucket.
+10. When the batch transform job is complete, Step Functions sends an email to the user using Amazon Simple Notification Service (Amazon SNS). This email includes the details of the batch transform job and links to the test data prediction outcome stored in the S3 bucket. After sending the email, Step Function enters a manual wait phase.
+11. The email sent by Amazon SNS has links to either accept or reject the test results. The recipient can manually look at the test data prediction outcomes in the S3 bucket. If they’re not satisfied with the results, they can reject the changes to cancel the Step Functions workflow.
+12. If the recipient accepts the changes, an Amazon API Gateway endpoint invokes a Lambda function with an embedded token that references the waiting Step Functions step.
+13. The Lambda function calls Step Functions to continue the workflow.
+14. Step Functions resumes the workflow.
+15. Step Functions creates a SageMaker endpoint config and a SageMaker inference endpoint.
+16. When the workflow is successful, Step Functions sends an email with a link to the final SageMaker inference endpoint.
+
 
 
 For more information: https://aws.amazon.com/blogs/machine-learning/build-a-ci-cd-pipeline-for-deploying-custom-machine-learning-models-using-aws-services/
