@@ -120,5 +120,31 @@ The workflow includes the following steps:
 16. When the workflow is successful, Step Functions sends an email with a link to the final SageMaker inference endpoint.
 
 
-
 For more information: https://aws.amazon.com/blogs/machine-learning/build-a-ci-cd-pipeline-for-deploying-custom-machine-learning-models-using-aws-services/
+
+## Consideration
+
+Scaling:
+- AWS Lambda, API Gateway and S3 all scale automatically as this is handled by AWS
+- Structured data can use RDS, DynamoDB, DataLake, Datawarehouse
+
+Security:
+- Least priveledge. All services requring only the necessary permissions.
+- Encrypt transit and static data. Secret static resources should be ideally held in AWS secret manager.
+- API Gateway: 
+-  - authenticate users using OpenID, AWS cognito (app), or 0Auth.
+-  - set up throttling to prevent DDoS attacks. 
+
+Reliability:
+- Use of serval availability zones (AZ) where possible
+- Cross-regional resource sharing (CROS) where possible i.e. API Gateway and S3 buckets. The service replicas data across different regions in case of DR.
+- Monitoring and logging: cloudwatch to monitor and log lambda functions, API gateway, and other AWS resources. Helps with checking health and performance of the services.
+- Distastor Recovery: Backup and Versioning. 
+-  - Versioning can be enabled in S3. This is helpful to track changes, and reverse course in case of DR or rollback.
+-  - AWS Backup: Helps backup database servers, and other supported AWS services.
+
+Error handling:
+- AWS lambda will automatically retry 2 before failing. Transient error. Using SQS messaging queue, especially dead letter queues can help in troubleshooting and retrying failed requests at a later stage
+- API Gateway allows for custom response based on client or server error helping developers and users.
+- Caching is enabled by default to reducing load on lambda function and increasing the processses fault tolerance during high traffic.
+- Step functions can be used for better flow control. It also helps preventing bottlenecks caused if a service e.g. lambda fails.
