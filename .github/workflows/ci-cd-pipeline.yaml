@@ -188,7 +188,7 @@ jobs:
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v2
 
-
+    # Creates sagemaker endpoint
     - name: Deploy to SageMaker
       run: |
         aws sagemaker create-model \
@@ -196,13 +196,15 @@ jobs:
           --primary-container Image=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest,ModelDataUrl=s3://${{ env.BUCKET_NAME }}/model/model.joblib.tar.gz \
           --execution-role-arn arn:aws:iam::058264202072:role/SageMakerRole
 
+    # config the sagemaker endpoint specifying model, and initial instance size and count
     - name: Create Endpoint Configuration
       run: |
         aws sagemaker create-endpoint-config \
           --endpoint-config-name nabeel-sagemaker-endpoint-config \
           --production-variants VariantName=AllTraffic,ModelName=${{ env.SAGEMAKER_MODEL }},InitialInstanceCount=1,InstanceType=ml.m5.large
 
-      # Failed required model to be compressed: tar.gz archive.
+    # Creates endpoint that can be used to make prediction
+    # Failed required model to be compressed: tar.gz archive.
     - name: Deploy Endpoint
       run: |
         aws sagemaker create-endpoint \

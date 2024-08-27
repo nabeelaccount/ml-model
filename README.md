@@ -33,11 +33,14 @@ An alternative of this is using SageMaker comprehensively
 
 Sage Maker -------> END Point (API CALLS) -------> result [y/n]
     |
-    |   -------> S3 bucket (stored module)
+    |   <-------> S3 bucket (stored module)
     |
     v
 ECR Image (Train, test, and revise module to S3)
 ```
+
+S3 Bucket is used to store the trained model. The model is contineously trained by Sagemaker and updated in S3
+ECR image contains the application aware of how to process the model will also include inferencing script aware of applying the model.
 
 
 Further reading and reference:
