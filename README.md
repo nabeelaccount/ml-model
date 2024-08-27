@@ -1,7 +1,7 @@
 # Machine learning training model to recongnise Iris flower
 
 
-# Building through GitHub action
+##  Building through GitHub action
 The project is broken down into two segements.
 
 1. Building the Iris flower training application
@@ -75,7 +75,7 @@ references:
 - Machine learning inference: https://www.datacamp.com/blog/what-is-machine-learning-inference
 - Flask fir Sagemaker inference: https://towardsdatascience.com/deploy-a-machine-learning-model-using-flask-da580f84e60c
 
-# Explaining an alternative CICD pipeline, with diagram, using AWS services, instead of GitHub. 
+## Explaining an alternative CICD pipeline, with diagram, using AWS services, instead of GitHub. 
 
 Alternative using native AWS CICD pipeline
 ```markdown
