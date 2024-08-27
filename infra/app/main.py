@@ -30,15 +30,15 @@ def load_model():
 
 # Object must be extracted and processed
 
-# def predict(event):
-#     sample = event['body']
-#     model = load_model()
-#     result = model.predict(sample)
-#     return result
+def predict(event):
+    sample = event['body']
+    model = load_model()
+    result = model.predict(sample)
+    return result
 
-# # Lambda handler function
-# def lambda_handler(event, context):
-#     result = predict(event)
-#     return {'StatusCode':200,
-#     'body':result[0]}
+# Lambda handler function
+def lambda_handler(event, context):
+    result = predict(event)
+    return {'StatusCode':200,
+    'body':result[0]}
 
